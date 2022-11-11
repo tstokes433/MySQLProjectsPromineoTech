@@ -1,11 +1,14 @@
 package projects.service;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 //import java.nio.file.Files;
 //import java.nio.file.Path;
 //import java.nio.file.Paths;
 //import java.util.LinkedList;
 //import java.util.List;
-
+//
 //import project.dao.DbException;
 import project.dao.ProjectDao;
 import projects.entity.Project;
@@ -20,6 +23,10 @@ public class ProjectService {
   public Project addProject(Project project) {
 	return projectDao.insertProject(project);  
   }
+  
+  public List<Project> fetchAllProjects() {
+		return projectDao.fetchAllProjects();
+	}
 //  public void createAndPopulateTables() {
 //	  loadFromFile(SCHEMA_FILE);
 //	//From Video!!!!!
@@ -95,9 +102,13 @@ public class ProjectService {
 //		throw new DbException(e);
 //   }
 //}
-////   public static void main(String[] args) {
-////	   new ProjectService().createAndPopulateTables();
-//// }
+
+public Project fetchProjectById(Integer projectId) {
+	return projectDao.fetchProjectById(projectId).orElseThrow(() -> new NoSuchElementException(
+			"Project with project ID= " + projectId + " does not exist."));
+}
+
+
 
 
 }

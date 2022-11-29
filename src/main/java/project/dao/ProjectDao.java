@@ -69,9 +69,7 @@ private List<Category> fetchCategoriesForProject(Connection conn,
 	+ "WHERE project_id = ?";	
 	// @formatter:on
 	
-//public void executeBatch(List<String> sqlBatch) {
-//	try(Connection conn = DbConnection.getConnection()){
-//		startTransaction(conn);
+
 	try(PreparedStatement stmt = conn.prepareStatement(sql)){
 		setParameter(stmt, 1, projectId, Integer.class);
 		  try(ResultSet rs = stmt.executeQuery()){
@@ -86,9 +84,7 @@ private List<Category> fetchCategoriesForProject(Connection conn,
 		throw new DbException(e);
 	}
 }
-				
-			 
-			
+							
 public Optional<Project> fetchProjectById(Integer projectId){
 	String sql = "SELECT * FROM " + PROJECT_TABLE + " WHERE project_id = ?";
 
@@ -97,9 +93,6 @@ public Optional<Project> fetchProjectById(Integer projectId){
 		try {
 			Project project = null;
 			
-/*
- * 			return Optional.ofNullable(project);
- */
 	
 			try(PreparedStatement stmt = conn.prepareStatement(sql)){
 				setParameter(stmt, 1, projectId, Integer.class);
@@ -201,25 +194,68 @@ private List<Material> fetchMaterialsForProject(Connection conn, Integer project
 	   }
    }
 }
-}
 
-//catch(Exception e) {
-//	  rollbackTransaction(conn);
-//	  throw new DbException(e);
-//}
-//} catch (SQLException e) {
-//throw new DbException(e);		 
-//}	  
+public boolean modifyProjectDetails(Project project) {//week 11!!!!!!!!!!!!!!!
+	// @formatter:off
+	String sql = ""
+		+ "UPDATE " + PROJECT_TABLE + " SET "
+		+ "project_name = ?, "
+		+ "estimated_hours = ?, "
+		+ "actual_hours = ?, "
+		+ "difficulty = ?, "
+		+ "notes = ? "
+		+ "WHERE project_id = ?";
+	// @formatter:on
 
-
-
-
-//		 for (String sql : sqlBatch) {
-//			 stmt.addBatch(sql);
-//		 }
-//		 
-
+	try(Connection conn = DbConnection.getConnection()){
+		startTransaction(conn);
+		
+		try(PreparedStatement stmt = conn.prepareStatement(sql)){
+			
+			 setParameter(stmt, 1, project.getProjectName(), String.class);
+			 setParameter(stmt, 2, project.getEstimatedHours(), BigDecimal.class);
+			 setParameter(stmt, 3, project.getActualHours(), BigDecimal.class);
+			 setParameter(stmt, 4, project.getDifficulty(), Integer.class);
+			 setParameter(stmt, 5, project.getNotes(), String.class);
+			 setParameter(stmt, 6, project.getProjectId(), Integer.class);
 	
+		boolean modified = stmt.executeUpdate()	 == 1;
+		commitTransaction(conn);
+		
+		return modified;
+}
+	catch(Exception e) {
+		  rollbackTransaction(conn);
+		  throw new DbException(e);
+	}
+} 
+	catch (SQLException e) {
+		throw new DbException(e);		 
+		}	 //week 11 !!!!!!!!!!!!!!!!!!!!
+	}
 
-
-
+public boolean deleteProject(Integer projectId) {  //Week 11!!!!
+	String sql = "DELETE FROM " + PROJECT_TABLE + " WHERE project_id = ?";
+	
+	try(Connection conn = DbConnection.getConnection()){
+		startTransaction(conn);
+		
+		try(PreparedStatement stmt = conn.prepareStatement(sql)){
+			setParameter(stmt, 1, projectId, Integer.class);
+			
+			boolean deleted = stmt.executeUpdate() == 1;
+			
+			commitTransaction(conn);
+			return deleted;	
+		}
+		catch(Exception e) {
+			rollbackTransaction(conn);
+			throw new DbException(e);
+		}
+	}
+		catch(SQLException e) {
+			throw new DbException(e);
+		}
+	}
+		
+}		 
